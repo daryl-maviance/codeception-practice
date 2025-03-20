@@ -122,6 +122,17 @@ final class BookingCest
         $I->sendPut('/booking/' . $bookId, $payload);
         $I->seeResponseCodeIs(200);
         $I->seeResponseIsJson();
-        codecept_debug($I->grabResponse());
+        $I->comment($I->grabResponse());
+        $I->seeResponseMatchesJsonType([
+            'firstname' => 'string',
+            'lastname' => 'string',
+            'totalprice' => 'integer',
+            'depositpaid' => 'boolean',
+            'bookingdates' => [
+                'checkin' => 'string',
+                'checkout' => 'string'
+            ],
+            'additionalneeds' => 'string'
+        ]);
     }
 }

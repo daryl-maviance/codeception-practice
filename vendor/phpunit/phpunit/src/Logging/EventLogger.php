@@ -26,10 +26,10 @@ use PHPUnit\Event\Tracer\Tracer;
  *
  * @internal This class is not covered by the backward compatibility promise for PHPUnit
  */
-final readonly class EventLogger implements Tracer
+final class EventLogger implements Tracer
 {
-    private string $path;
-    private bool $includeTelemetryInfo;
+    private readonly string $path;
+    private readonly bool $includeTelemetryInfo;
 
     public function __construct(string $path, bool $includeTelemetryInfo)
     {
@@ -41,7 +41,7 @@ final readonly class EventLogger implements Tracer
     {
         $telemetryInfo = $this->telemetryInfo($event);
         $indentation   = PHP_EOL . str_repeat(' ', strlen($telemetryInfo));
-        $lines         = preg_split('/\r\n|\r|\n/', $event->asString()) ?: [];
+        $lines         = preg_split('/\r\n|\r|\n/', $event->asString());
 
         $flags = FILE_APPEND;
 

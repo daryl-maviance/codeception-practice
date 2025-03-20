@@ -9,10 +9,10 @@
  */
 namespace PHPUnit\Event;
 
-use function assert;
-use function interface_exists;
+use function gc_status;
 use PHPUnit\Event\Telemetry\HRTime;
-use PHPUnit\Event\Telemetry\SystemGarbageCollectorStatusProvider;
+use PHPUnit\Event\Telemetry\Php81GarbageCollectorStatusProvider;
+use PHPUnit\Event\Telemetry\Php83GarbageCollectorStatusProvider;
 
 /**
  * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
@@ -87,7 +87,7 @@ final class Facade
      *
      * @noinspection PhpUnused
      */
-    public function initForIsolation(HRTime $offset): CollectingDispatcher
+    public function initForIsolation(HRTime $offset, bool $exportObjects): CollectingDispatcher
     {
         $dispatcher = new CollectingDispatcher;
 
@@ -96,9 +96,13 @@ final class Facade
             new Telemetry\System(
                 new Telemetry\SystemStopWatchWithOffset($offset),
                 new Telemetry\SystemMemoryMeter,
-                new SystemGarbageCollectorStatusProvider,
+                $this->garbageCollectorStatusProvider(),
             ),
         );
+
+        if ($exportObjects) {
+            $this->emitter->exportObjects();
+        }
 
         $this->sealed = true;
 
@@ -136,7 +140,7 @@ final class Facade
         return new Telemetry\System(
             new Telemetry\SystemStopWatch,
             new Telemetry\SystemMemoryMeter,
-            new SystemGarbageCollectorStatusProvider,
+            $this->garbageCollectorStatusProvider(),
         );
     }
 
@@ -179,6 +183,8 @@ final class Facade
             Test\AfterTestMethodCalled::class,
             Test\AfterTestMethodErrored::class,
             Test\AfterTestMethodFinished::class,
+            Test\AssertionSucceeded::class,
+            Test\AssertionFailed::class,
             Test\BeforeFirstTestMethodCalled::class,
             Test\BeforeFirstTestMethodErrored::class,
             Test\BeforeFirstTestMethodFinished::class,
@@ -214,8 +220,12 @@ final class Facade
             Test\WarningTriggered::class,
 
             Test\MockObjectCreated::class,
+            Test\MockObjectForAbstractClassCreated::class,
             Test\MockObjectForIntersectionOfInterfacesCreated::class,
+            Test\MockObjectForTraitCreated::class,
+            Test\MockObjectFromWsdlCreated::class,
             Test\PartialMockObjectCreated::class,
+            Test\TestProxyCreated::class,
             Test\TestStubCreated::class,
             Test\TestStubForIntersectionOfInterfacesCreated::class,
 
@@ -234,8 +244,6 @@ final class Facade
             TestRunner\GarbageCollectionDisabled::class,
             TestRunner\GarbageCollectionTriggered::class,
             TestRunner\GarbageCollectionEnabled::class,
-            TestRunner\ChildProcessFinished::class,
-            TestRunner\ChildProcessStarted::class,
 
             TestSuite\Filtered::class,
             TestSuite\Finished::class,
@@ -246,11 +254,21 @@ final class Facade
         ];
 
         foreach ($defaultEvents as $eventClass) {
-            $subscriberInterface = $eventClass . 'Subscriber';
-
-            assert(interface_exists($subscriberInterface));
-
-            $typeMap->addMapping($subscriberInterface, $eventClass);
+            $typeMap->addMapping(
+                $eventClass . 'Subscriber',
+                $eventClass,
+            );
         }
+    }
+
+    private function garbageCollectorStatusProvider(): Telemetry\GarbageCollectorStatusProvider
+    {
+        if (!isset(gc_status()['running'])) {
+            // @codeCoverageIgnoreStart
+            return new Php81GarbageCollectorStatusProvider;
+            // @codeCoverageIgnoreEnd
+        }
+
+        return new Php83GarbageCollectorStatusProvider;
     }
 }

@@ -9,7 +9,6 @@
  */
 namespace SebastianBergmann\CodeCoverage\Report;
 
-use const DIRECTORY_SEPARATOR;
 use function basename;
 use function count;
 use function dirname;
@@ -118,6 +117,10 @@ final class Cobertura
                 $complexity        += $class['ccn'];
                 $packageComplexity += $class['ccn'];
 
+                if (!empty($class['package']['namespace'])) {
+                    $className = $class['package']['namespace'] . '\\' . $className;
+                }
+
                 $linesValid   = $class['executableLines'];
                 $linesCovered = $class['executedLines'];
                 $lineRate     = $linesValid === 0 ? 0 : ($linesCovered / $linesValid);
@@ -153,7 +156,7 @@ final class Cobertura
 
                     $linesValid   = $method['executableLines'];
                     $linesCovered = $method['executedLines'];
-                    $lineRate     = $linesCovered / $linesValid;
+                    $lineRate     = $linesValid === 0 ? 0 : ($linesCovered / $linesValid);
 
                     $branchesValid   = $method['executableBranches'];
                     $branchesCovered = $method['executedBranches'];
@@ -228,7 +231,7 @@ final class Cobertura
 
                 $linesValid   = $function['executableLines'];
                 $linesCovered = $function['executedLines'];
-                $lineRate     = $linesCovered / $linesValid;
+                $lineRate     = $linesValid === 0 ? 0 : ($linesCovered / $linesValid);
 
                 $functionsLinesValid   += $linesValid;
                 $functionsLinesCovered += $linesCovered;

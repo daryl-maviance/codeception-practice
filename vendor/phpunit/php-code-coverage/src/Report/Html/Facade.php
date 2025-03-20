@@ -22,13 +22,13 @@ use SebastianBergmann\CodeCoverage\Util\Filesystem;
 use SebastianBergmann\Template\Exception;
 use SebastianBergmann\Template\Template;
 
-final readonly class Facade
+final class Facade
 {
-    private string $templatePath;
-    private string $generator;
-    private Colors $colors;
-    private Thresholds $thresholds;
-    private CustomCssFile $customCssFile;
+    private readonly string $templatePath;
+    private readonly string $generator;
+    private readonly Colors $colors;
+    private readonly Thresholds $thresholds;
+    private readonly CustomCssFile $customCssFile;
 
     public function __construct(string $generator = '', ?Colors $colors = null, ?Thresholds $thresholds = null, ?CustomCssFile $customCssFile = null)
     {
@@ -107,7 +107,8 @@ final readonly class Facade
         copy($this->templatePath . 'icons/file-directory.svg', $dir . 'file-directory.svg');
 
         $dir = $this->directory($target . '_js');
-        copy($this->templatePath . 'js/bootstrap.bundle.min.js', $dir . 'bootstrap.bundle.min.js');
+        copy($this->templatePath . 'js/bootstrap.min.js', $dir . 'bootstrap.min.js');
+        copy($this->templatePath . 'js/popper.min.js', $dir . 'popper.min.js');
         copy($this->templatePath . 'js/d3.min.js', $dir . 'd3.min.js');
         copy($this->templatePath . 'js/jquery.min.js', $dir . 'jquery.min.js');
         copy($this->templatePath . 'js/nv.d3.min.js', $dir . 'nv.d3.min.js');

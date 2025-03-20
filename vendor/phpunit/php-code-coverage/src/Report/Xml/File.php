@@ -9,7 +9,6 @@
  */
 namespace SebastianBergmann\CodeCoverage\Report\Xml;
 
-use function assert;
 use DOMDocument;
 use DOMElement;
 
@@ -40,8 +39,6 @@ class File
             );
         }
 
-        assert($totalsContainer instanceof DOMElement);
-
         return new Totals($totalsContainer);
     }
 
@@ -67,8 +64,6 @@ class File
                 'line',
             ),
         );
-
-        assert($lineNode instanceof DOMElement);
 
         return new Coverage($lineNode, $line);
     }

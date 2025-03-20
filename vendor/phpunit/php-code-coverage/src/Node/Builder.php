@@ -28,11 +28,11 @@ use SebastianBergmann\CodeCoverage\StaticAnalysis\FileAnalyser;
 /**
  * @internal This class is not covered by the backward compatibility promise for phpunit/php-code-coverage
  *
- * @phpstan-import-type TestType from CodeCoverage
+ * @psalm-import-type TestType from \SebastianBergmann\CodeCoverage\CodeCoverage
  */
-final readonly class Builder
+final class Builder
 {
-    private FileAnalyser $analyser;
+    private readonly FileAnalyser $analyser;
 
     public function __construct(FileAnalyser $analyser)
     {
@@ -58,7 +58,7 @@ final readonly class Builder
     }
 
     /**
-     * @param array<string, TestType> $tests
+     * @psalm-param array<string, TestType> $tests
      */
     private function addItems(Directory $root, array $items, array $tests): void
     {
@@ -132,7 +132,7 @@ final readonly class Builder
      * )
      * </code>
      *
-     * @return array<string, array<string, array{lineCoverage: array<int, int>, functionCoverage: array<string, array<int, int>>}>>
+     * @psalm-return array<string, array<string, array{lineCoverage: array<int, int>, functionCoverage: array<string, array<int, int>>}>>
      */
     private function buildDirectoryStructure(ProcessedCodeCoverageData $data): array
     {
@@ -223,7 +223,6 @@ final readonly class Builder
                 $paths[$i] = substr($paths[$i], 7);
                 $paths[$i] = str_replace('/', DIRECTORY_SEPARATOR, $paths[$i]);
             }
-
             $paths[$i] = explode(DIRECTORY_SEPARATOR, $paths[$i]);
 
             if (empty($paths[$i][0])) {

@@ -27,7 +27,7 @@ use PhpParser\NodeVisitorAbstract;
 final class IgnoredLinesFindingVisitor extends NodeVisitorAbstract
 {
     /**
-     * @var array<int>
+     * @psalm-var array<int>
      */
     private array $ignoredLines = [];
     private readonly bool $useAnnotationsForIgnoringCode;
@@ -39,7 +39,7 @@ final class IgnoredLinesFindingVisitor extends NodeVisitorAbstract
         $this->ignoreDeprecated              = $ignoreDeprecated;
     }
 
-    public function enterNode(Node $node): null
+    public function enterNode(Node $node): void
     {
         if (!$node instanceof Class_ &&
             !$node instanceof Trait_ &&
@@ -48,11 +48,11 @@ final class IgnoredLinesFindingVisitor extends NodeVisitorAbstract
             !$node instanceof ClassMethod &&
             !$node instanceof Function_ &&
             !$node instanceof Attribute) {
-            return null;
+            return;
         }
 
         if ($node instanceof Class_ && $node->isAnonymous()) {
-            return null;
+            return;
         }
 
         if ($node instanceof Class_ ||
@@ -68,11 +68,11 @@ final class IgnoredLinesFindingVisitor extends NodeVisitorAbstract
         }
 
         if (!$this->useAnnotationsForIgnoringCode) {
-            return null;
+            return;
         }
 
         if ($node instanceof Interface_) {
-            return null;
+            return;
         }
 
         if ($node instanceof Attribute &&
@@ -84,16 +84,14 @@ final class IgnoredLinesFindingVisitor extends NodeVisitorAbstract
                 $this->ignoredLines[] = $line;
             }
 
-            return null;
+            return;
         }
 
         $this->processDocComment($node);
-
-        return null;
     }
 
     /**
-     * @return array<int>
+     * @psalm-return array<int>
      */
     public function ignoredLines(): array
     {

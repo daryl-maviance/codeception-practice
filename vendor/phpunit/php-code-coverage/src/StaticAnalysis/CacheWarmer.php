@@ -13,10 +13,7 @@ use SebastianBergmann\CodeCoverage\Filter;
 
 final class CacheWarmer
 {
-    /**
-     * @return array{cacheHits: non-negative-int, cacheMisses: non-negative-int}
-     */
-    public function warmCache(string $cacheDirectory, bool $useAnnotationsForIgnoringCode, bool $ignoreDeprecatedCode, Filter $filter): array
+    public function warmCache(string $cacheDirectory, bool $useAnnotationsForIgnoringCode, bool $ignoreDeprecatedCode, Filter $filter): void
     {
         $analyser = new CachingFileAnalyser(
             $cacheDirectory,
@@ -28,19 +25,8 @@ final class CacheWarmer
             $ignoreDeprecatedCode,
         );
 
-        $cacheHits   = 0;
-        $cacheMisses = 0;
-
         foreach ($filter->files() as $file) {
-            $statistics = $analyser->process($file);
-
-            $cacheHits   += $statistics['cacheHits'];
-            $cacheMisses += $statistics['cacheMisses'];
+            $analyser->process($file);
         }
-
-        return [
-            'cacheHits'   => $cacheHits,
-            'cacheMisses' => $cacheMisses,
-        ];
     }
 }

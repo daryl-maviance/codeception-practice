@@ -141,16 +141,8 @@ final class ProgressPrinter
             return;
         }
 
-        if ($this->source->ignoreSelfDeprecations() &&
-            ($event->trigger()->isTest() || $event->trigger()->isSelf())) {
-            return;
-        }
-
-        if ($this->source->ignoreDirectDeprecations() && $event->trigger()->isDirect()) {
-            return;
-        }
-
-        if ($this->source->ignoreIndirectDeprecations() && $event->trigger()->isIndirect()) {
+        if ($this->source->restrictDeprecations() &&
+            !SourceFilter::instance()->includes($event->file())) {
             return;
         }
 
@@ -167,16 +159,8 @@ final class ProgressPrinter
             return;
         }
 
-        if ($this->source->ignoreSelfDeprecations() &&
-            ($event->trigger()->isTest() || $event->trigger()->isSelf())) {
-            return;
-        }
-
-        if ($this->source->ignoreDirectDeprecations() && $event->trigger()->isDirect()) {
-            return;
-        }
-
-        if ($this->source->ignoreIndirectDeprecations() && $event->trigger()->isIndirect()) {
+        if ($this->source->restrictDeprecations() &&
+            !SourceFilter::instance()->includes($event->file())) {
             return;
         }
 
