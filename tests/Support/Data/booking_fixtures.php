@@ -1,5 +1,13 @@
 <?php
 return[
+
+    'authenticate_user'=>[
+        'payload'=>[
+            'username'=>'admin',
+            'password'=>'password123'
+        ]
+    ],
+
     'create_booking' =>[
         'payload' => [
             "firstname" => "Jim",

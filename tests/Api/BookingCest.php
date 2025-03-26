@@ -28,12 +28,7 @@ final class BookingCest
     public function authenticateUser(ApiTester $I)
     {
         $I->wantTo('Authenticate a user');
-        $payload = [
-            "username" => "admin",
-            "password" => "password123"
-        ];
-
-        $I->sendPost('/auth', $payload);
+        $I->sendPost('/auth', $this->fixture['authenticate_user']['payload']);
         $I->seeResponseCodeIs(200);
         $I->seeResponseIsJson();
         $I->seeResponseMatchesJsonType([
