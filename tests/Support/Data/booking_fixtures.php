@@ -61,8 +61,11 @@ return[
             'depositpaid' => true,
             'additionalneeds' => 'Bread'
         ]
-    ]
+    ],
 
+    'delete_non_existant_booking' =>[
+        'booking_id'=>'999/999',
+    ]
 ]
 
 ?>

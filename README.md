@@ -2,6 +2,9 @@
 
 This repository contains automated tests for a Booking API using the Codeception testing framework. The tests are implemented in the `BookingCest` class and cover various functionalities of the API.
 
+
+# Screenshot of running Tests
+![Screenshot of running Tests](/screenshots/Screenshot%20from%202025-03-26%2011-16-38.png)
 ## Prerequisites
 
 - PHP 7.4 or higher

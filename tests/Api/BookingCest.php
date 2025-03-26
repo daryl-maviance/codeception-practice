@@ -45,6 +45,35 @@ final class BookingCest
     }
 
 
+
+    public function createBooking(ApiTester $I)
+    {
+        $I->wantTo('Create a booking');
+        $I->sendPost('/booking', $this->fixture['create_booking']['payload']);
+        $I->seeResponseCodeIsSuccessful();
+        $I->seeResponseIsJson();
+        $I->seeResponseMatchesJsonType([
+            'bookingid' => 'integer',
+            'booking' => [
+                'firstname' => 'string',
+                'lastname' => 'string',
+                'totalprice' => 'integer',
+                'depositpaid' => 'boolean',
+                'bookingdates' => [
+                    'checkin' => 'string',
+                    'checkout' => 'string'
+                ],
+                'additionalneeds' => 'string'
+            ]
+        ]);
+        $I->seeResponseContainsJson($this->fixture['create_booking']['response']);
+
+        // Store the booking ID in the class property
+        $this->bookingId = $I->grabDataFromResponseByJsonPath('$.bookingid')[0];
+    }
+
+
+
     public function getBooking(ApiTester $I)
     {
         $I->wantTo('Get a booking');
@@ -85,32 +114,6 @@ final class BookingCest
          
     }
 
-
-    public function createBooking(ApiTester $I)
-    {
-        $I->wantTo('Create a booking');
-        $I->sendPost('/booking', $this->fixture['create_booking']['payload']);
-        $I->seeResponseCodeIsSuccessful();
-        $I->seeResponseIsJson();
-        $I->seeResponseMatchesJsonType([
-            'bookingid' => 'integer',
-            'booking' => [
-                'firstname' => 'string',
-                'lastname' => 'string',
-                'totalprice' => 'integer',
-                'depositpaid' => 'boolean',
-                'bookingdates' => [
-                    'checkin' => 'string',
-                    'checkout' => 'string'
-                ],
-                'additionalneeds' => 'string'
-            ]
-        ]);
-        $I->seeResponseContainsJson($this->fixture['create_booking']['response']);
-
-        // Store the booking ID in the class property
-        $this->bookingId = $I->grabDataFromResponseByJsonPath('$.bookingid')[0];
-    }
 
 
     public function updateBooking(ApiTester $I)
@@ -178,5 +181,13 @@ final class BookingCest
         $I->sendDelete('/booking/' . $this->bookingId);
         $I->seeResponseCodeIs(201);
       
+    }
+
+
+    public function dontDeleteInvalidBooking(ApiTester $I){
+        $I->wantTo('does not delete a booking with invalid id');
+        $I->haveHttpHeader('Cookie', 'token=' . $this->token);
+        $I->sendDelete('/booking/' . $this->fixture['delete_non_existant_booking']['booking_id']);
+        $I->seeResponseCodeIs(404);
     }
 }
