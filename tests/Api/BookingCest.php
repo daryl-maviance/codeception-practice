@@ -14,31 +14,77 @@ final class BookingCest
     public function _before(ApiTester $I): void
     {
         // Code here will be executed before each test.
+        $I->haveHttpHeader('Content-Type', 'application/json');
+        $I->haveHttpHeader('Accept', 'application/json'); 
+
     }
 
-    public function tryToTest(ApiTester $I): void
+
+    public function authenticateUser(ApiTester $I)
     {
-        // Write your tests here. All `public` methods will be executed as tests.
+        $I->wantTo('Authenticate a user');
+        $payload = [
+            "username" => "admin",
+            "password" => "password123"
+        ];
+
+        $I->sendPost('/auth', $payload);
+        $I->seeResponseCodeIs(200);
+        $I->seeResponseIsJson();
+        $I->seeResponseMatchesJsonType([
+            'token' => 'string'
+        ]);
+
+        // Store the token in the class property
+        $this->token = $I->grabDataFromResponseByJsonPath('$.token')[0];
     }
+
+
+    public function getBooking(ApiTester $I)
+    {
+        $I->wantTo('Get a booking');
+        $I->sendGet('/booking/' . $this->bookingId);
+        $I->seeResponseCodeIs(200);
+        $I->seeResponseIsJson();
+        $I->seeResponseMatchesJsonType([
+            'firstname' => 'string',
+            'lastname' => 'string',
+            'totalprice' => 'integer',
+            'depositpaid' => 'boolean',
+            'bookingdates' => [
+                'checkin' => 'string',
+                'checkout' => 'string'
+            ],
+            'additionalneeds' => 'string'
+        ]);
+    }
+
+
+    public function checkUserAuthentication(ApiTester $I)
+    {
+        $I->wantTo('Check user authentication');
+        $I->sendDelete('/booking/' . $this->bookingId);
+        $I->seeResponseCodeIs(403);
+    }
+
 
     public function getAllBookings(ApiTester $I)
     {
+        $I->wantTo('Get all bookings');
         $I->sendGet('/booking');
-
         $I->seeResponseCodeIs(200);
         $I->seeResponseIsJson();
         $I->seeResponseMatchesJsonType([
             'bookingid' => 'integer'
         ], '$[*]');
          
-        $I->comment('Response: ' . $I->grabResponse());
     }
+
 
     public function createBooking(ApiTester $I)
     {
-        $I->haveHttpHeader('Content-Type', 'application/json');
-        $I->haveHttpHeader('Accept', 'application/json'); // Ensure correct response type
-
+        $I->wantTo('Create a booking');
+       
         $payload = [
             'firstname' => 'John',
             'lastname' => 'Doe',
@@ -52,9 +98,6 @@ final class BookingCest
         ];
 
         $I->sendPost('/booking', $payload);
-
-        codecept_debug($I->grabResponse());
-
         $I->seeResponseCodeIsSuccessful();
         $I->seeResponseIsJson();
         $I->seeResponseMatchesJsonType([
@@ -76,35 +119,15 @@ final class BookingCest
         $this->bookingId = $I->grabDataFromResponseByJsonPath('$.bookingid')[0];
     }
 
-    public function authenticateUser(ApiTester $I)
-    {
-        $payload = [
-            "username" => "admin",
-            "password" => "password123"
-        ];
-
-        $I->sendPost('/auth', $payload);
-        $I->seeResponseCodeIs(200);
-        $I->seeResponseIsJson();
-        $I->seeResponseMatchesJsonType([
-            'token' => 'string'
-        ]);
-
-        // Store the token in the class property
-        $this->token = $I->grabDataFromResponseByJsonPath('$.token')[0];
-    }
 
     public function updateBooking(ApiTester $I)
     { 
-        $bookId = $this->bookingId; // Retrieve the booking ID from the class property
-
+        $I->wantTo('Update a booking');
         // Ensure the token is set
         if (!isset($this->token)) {
             $this->authenticateUser($I); // Authenticate and retrieve the token if not already set
         }
 
-        $I->haveHttpHeader('Content-Type', 'application/json');
-        $I->haveHttpHeader('Accept', 'application/json');
         $I->haveHttpHeader('Cookie', 'token=' . $this->token);
 
         $payload = [
@@ -119,10 +142,9 @@ final class BookingCest
             'additionalneeds' => 'Lunch'
         ];
 
-        $I->sendPut('/booking/' . $bookId, $payload);
+        $I->sendPut('/booking/' .$this->bookingId, $payload);
         $I->seeResponseCodeIs(200);
         $I->seeResponseIsJson();
-        $I->comment($I->grabResponse());
         $I->seeResponseMatchesJsonType([
             'firstname' => 'string',
             'lastname' => 'string',
@@ -134,5 +156,56 @@ final class BookingCest
             ],
             'additionalneeds' => 'string'
         ]);
+    }
+
+
+    public function PartiallyUpdateBooking(ApiTester $I)
+    {
+        $I->wantTo('Partially update a booking');
+        // Ensure the token is set
+        if (!isset($this->token)) {
+            $this->authenticateUser($I); // Authenticate and retrieve the token if not already set
+        }
+
+        $I->haveHttpHeader('Cookie', 'token=' . $this->token);
+
+        $payload = [
+            'firstname' => 'Jane',
+            'lastname' => 'Smith'
+        ];
+
+        $I->sendPatch('/booking/' . $this->bookingId, $payload);
+        $I->seeResponseCodeIs(200);
+        $I->seeResponseIsJson();
+        $I->seeResponseMatchesJsonType([
+            'firstname' => 'string',
+            'lastname' => 'string',
+            'totalprice' => 'integer',
+            'depositpaid' => 'boolean',
+            'bookingdates' => [
+                'checkin' => 'string',
+                'checkout' => 'string'
+            ],
+            'additionalneeds' => 'string'
+        ]);
+
+        $I->seeResponseContainsJson([
+            'firstname' => 'Jane',
+            'lastname' => 'Smith'
+        ]);
+    }
+
+    public function deleteBooking(ApiTester $I)
+    {
+        $I->wantTo('Delete a booking');
+        // Ensure the token is set
+        if (!isset($this->token)) {
+            $this->authenticateUser($I); // Authenticate and retrieve the token if not already set
+        }
+
+        $I->haveHttpHeader('Cookie', 'token=' . $this->token);
+        $I->sendDelete('/booking/' . $this->bookingId);
+        $I->seeResponseCodeIs(201);
+      
     }
 }
