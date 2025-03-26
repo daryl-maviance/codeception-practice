@@ -2,12 +2,9 @@
 
 This repository contains automated tests for a Booking API using the Codeception testing framework. The tests are implemented in the `BookingCest` class and cover various functionalities of the API.
 
-
-# Screenshot of running Tests
-![Screenshot of running Tests](/screenshots/Screenshot%20from%202025-03-26%2011-16-38.png)
 ## Prerequisites
 
-- PHP 7.4 or higher
+- PHP 8.0 or higher
 - Composer
 - Codeception installed globally or locally in the project
 
@@ -34,11 +31,16 @@ The `BookingCest` class includes the following test scenarios:
    - Requires authentication via a token.
    - Verifies the response code, JSON format, and structure.
 
+5. **Delete Booking**
+   - Sends a `DELETE` request to `/booking/{id}`.
+   - Requires authentication via a token.
+   - Verifies the response code and ensures the booking is deleted.
+
 ## How to Run Tests
 
 1. Clone the repository:
    ```bash
-   git clone  https://github.com/daryl-maviance/codeception-practice.git
+   git clone https://github.com/daryl-maviance/codeception-practice.git
    cd codeception-practice
    ```
 
@@ -57,6 +59,7 @@ The `BookingCest` class includes the following test scenarios:
 - The `BookingCest` class uses class properties to store the `token` and `bookingId` for reuse across tests.
 - Ensure the API server is running and accessible before executing the tests.
 - Update the API endpoints and credentials in the test methods if necessary.
+- A new test scenario for deleting bookings has been added.
 
 ## Directory Structure
 
@@ -64,4 +67,10 @@ The `BookingCest` class includes the following test scenarios:
 /tests
   /Api
     BookingCest.php  # Contains the Booking API test cases
+/screenshots
+  Screenshot from running tests
 ```
+
+## Screenshot of Running Tests
+
+![Screenshot of running Tests](/screenshots/Screenshot%20from%202025-03-26%2011-16-38.png)
