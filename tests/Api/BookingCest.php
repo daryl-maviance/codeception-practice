@@ -10,6 +10,11 @@ final class BookingCest
 {
     private string $token; // Class property to store the token
     private int $bookingId; // Class property to store the booking ID
+    private $fixture ;
+
+    public function __construct() {
+        $this->fixture = require codecept_data_dir('booking_fixtures.php');
+    }
 
     public function _before(ApiTester $I): void
     {
@@ -84,20 +89,7 @@ final class BookingCest
     public function createBooking(ApiTester $I)
     {
         $I->wantTo('Create a booking');
-       
-        $payload = [
-            'firstname' => 'John',
-            'lastname' => 'Doe',
-            'totalprice' => 150,
-            'depositpaid' => true,
-            'bookingdates' => [
-                'checkin' => '2024-01-01',
-                'checkout' => '2024-01-05'
-            ],
-            'additionalneeds' => 'Breakfast'
-        ];
-
-        $I->sendPost('/booking', $payload);
+        $I->sendPost('/booking', $this->fixture['create_booking']['payload']);
         $I->seeResponseCodeIsSuccessful();
         $I->seeResponseIsJson();
         $I->seeResponseMatchesJsonType([
@@ -114,6 +106,7 @@ final class BookingCest
                 'additionalneeds' => 'string'
             ]
         ]);
+        $I->seeResponseContainsJson($this->fixture['create_booking']['response']);
 
         // Store the booking ID in the class property
         $this->bookingId = $I->grabDataFromResponseByJsonPath('$.bookingid')[0];
@@ -129,20 +122,7 @@ final class BookingCest
         }
 
         $I->haveHttpHeader('Cookie', 'token=' . $this->token);
-
-        $payload = [
-            'firstname' => 'Jane',
-            'lastname' => 'Smith',
-            'totalprice' => 200,
-            'depositpaid' => false,
-            'bookingdates' => [
-                'checkin' => '2024-02-01',
-                'checkout' => '2024-02-10'
-            ],
-            'additionalneeds' => 'Lunch'
-        ];
-
-        $I->sendPut('/booking/' .$this->bookingId, $payload);
+        $I->sendPut('/booking/' .$this->bookingId, $this->fixture['update_booking']['payload']);
         $I->seeResponseCodeIs(200);
         $I->seeResponseIsJson();
         $I->seeResponseMatchesJsonType([
@@ -156,6 +136,7 @@ final class BookingCest
             ],
             'additionalneeds' => 'string'
         ]);
+        $I->seeResponseContainsJson($this->fixture['update_booking']['response']);
     }
 
 
@@ -168,13 +149,7 @@ final class BookingCest
         }
 
         $I->haveHttpHeader('Cookie', 'token=' . $this->token);
-
-        $payload = [
-            'firstname' => 'Jane',
-            'lastname' => 'Smith'
-        ];
-
-        $I->sendPatch('/booking/' . $this->bookingId, $payload);
+        $I->sendPatch('/booking/' . $this->bookingId, $this->fixture['partiallly_update_booking']['payload']);
         $I->seeResponseCodeIs(200);
         $I->seeResponseIsJson();
         $I->seeResponseMatchesJsonType([
@@ -188,11 +163,7 @@ final class BookingCest
             ],
             'additionalneeds' => 'string'
         ]);
-
-        $I->seeResponseContainsJson([
-            'firstname' => 'Jane',
-            'lastname' => 'Smith'
-        ]);
+        $I->seeResponseContainsJson($this->fixture['partiallly_update_booking']['response']);
     }
 
     public function deleteBooking(ApiTester $I)
